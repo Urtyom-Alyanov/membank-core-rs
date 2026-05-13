@@ -14,7 +14,7 @@
 
 </div>
 
-# <p align="center">Ядро НБМ (API, Rust (Проект Octopus-rs)</p>
+# <p align="center">Ядро НБМ (API, Rust (Проект octopus-rs)</p>
 
 <div align="center">
 
