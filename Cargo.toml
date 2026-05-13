@@ -1,0 +1,13 @@
+[workspace]
+members = [
+  "crates/membank-api",
+  "crates/membank-data",
+  "crates/membank-datatransferobjects",
+  "crates/membank-domain",
+]
+resolver = "3"
+
+
+[workspace.package]
+edition = "2024"
+version = "0.1.0"

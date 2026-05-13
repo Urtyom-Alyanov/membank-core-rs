@@ -1,0 +1,6 @@
+[package]
+name = "membank-data"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]

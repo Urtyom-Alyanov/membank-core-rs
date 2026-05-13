@@ -1,0 +1,8 @@
+[package]
+name = "membank-datatransferobjects"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+membank-domain = { path = "../membank-domain" }
+serde = { version = "1.0", features = ["derive"] }
