@@ -360,8 +360,19 @@ name = "membank-domain"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "membank-utils",
  "rust_decimal",
+ "serde",
+ "serde_json",
  "thiserror",
+ "uuid",
+]
+
+[[package]]
+name = "membank-utils"
+version = "0.1.0"
+dependencies = [
+ "chrono",
  "uuid",
 ]
 

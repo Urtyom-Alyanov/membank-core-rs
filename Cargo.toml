@@ -4,6 +4,7 @@ members = [
   "crates/membank-data",
   "crates/membank-datatransferobjects",
   "crates/membank-domain",
+  "crates/membank-utils",
 ]
 resolver = "3"
 

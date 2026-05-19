@@ -2,13 +2,10 @@ use chrono::{
   DateTime,
   Utc,
 };
+use membank_utils::uuid_v7::uuid_v7_with_utc_gen;
 use rust_decimal::Decimal;
 use thiserror::Error;
-use uuid::{
-  NoContext,
-  Uuid,
-  timestamp,
-};
+use uuid::Uuid;
 
 use crate::value::money::Money;
 
@@ -24,8 +21,11 @@ pub enum WalletError
   CurrencyMismatch,
   #[error("Amount must be positive")]
   InvalidAmount,
+  #[error("This name for wallet is incorrecnt")]
+  IncorrectName,
 }
 
+/// Кошелёк, содержит баланс, и метаданные типа имени и описания
 pub struct Wallet
 {
   id: Uuid,
@@ -40,19 +40,17 @@ impl Wallet
 {
   pub fn new(owner_id: i32, balance: Money, name: String, description: Option<String>) -> Self
   {
-    let created_at = Utc::now();
-    let timestamp = timestamp::Timestamp::from_unix(NoContext,
-                                                    created_at.timestamp() as u64,
-                                                    created_at.timestamp_subsec_nanos());
+    let uuid_with_utc = uuid_v7_with_utc_gen();
 
-    Self { id: Uuid::new_v7(timestamp),
+    Self { id: uuid_with_utc.0,
            owner_id,
            balance,
-           created_at,
+           created_at: uuid_with_utc.1,
            name,
            description }
   }
 
+  /// Добавить денег в кошелёк
   pub fn deposit(&mut self, amount: Money) -> Result<Money, WalletError>
   {
     if amount.amount <= Decimal::ZERO
@@ -67,6 +65,7 @@ impl Wallet
     Ok(self.balance)
   }
 
+  /// Вычесть деньги из кошелька
   pub fn withdraw(&mut self, amount: Money) -> Result<Money, WalletError>
   {
     if amount.amount <= Decimal::ZERO
@@ -85,5 +84,22 @@ impl Wallet
 
     self.balance.amount -= amount.amount;
     Ok(self.balance)
+  }
+
+  /// Изменить имя кошелька
+  pub fn change_name(&mut self, new_name: String) -> Result<(), WalletError>
+  {
+    if new_name.len() < 3
+    {
+      return Err(WalletError::IncorrectName);
+    }
+    self.name = new_name;
+    Ok(())
+  }
+
+  /// Изменить описание кошелька
+  pub fn change_descriprtion(&mut self, new_description: Option<String>)
+  {
+    self.description = new_description;
   }
 }

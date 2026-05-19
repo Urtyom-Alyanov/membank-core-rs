@@ -1,0 +1,8 @@
+[package]
+name = "membank-utils"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+uuid = { version = "1.23.1", features = ["v7"] }
+chrono = { version = "0.4.44", features = ["serde"] }

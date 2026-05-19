@@ -6,6 +6,8 @@ use rust_decimal::Decimal;
 use thiserror::Error;
 use uuid::Uuid;
 
+use crate::entity::economic::currency_rate_history_item::CurrencyRateHistoryItem;
+
 #[derive(Error, Debug)]
 pub enum CurrencyError
 {
@@ -13,6 +15,13 @@ pub enum CurrencyError
   InvalidCode(String),
   #[error("Exchange rate must be positive")]
   InvalidExchangeRate,
+  #[error("Operation amount must be positive")]
+  InvalidAmount,
+  #[error("Cannot burn {requested} units of currency. Total supply: {supply}")]
+  InsufficientSupplyForBurn
+  {
+    requested: Decimal, supply: Decimal
+  },
 }
 
 /// Валюта, которая может быть использована в системе.
@@ -91,7 +100,9 @@ impl Currency
   }
 
   /// Обновить обменный курс к Левро. Должен быть положительным числом.
-  pub fn update_exchange_rate(&mut self, new_rate: Decimal) -> Result<(), CurrencyError>
+  pub fn update_exchange_rate<'a>(&'a mut self,
+                                  new_rate: Decimal)
+                                  -> Result<CurrencyRateHistoryItem, CurrencyError>
   {
     if new_rate <= Decimal::ZERO
     {
@@ -99,7 +110,7 @@ impl Currency
     }
     self.exchange_rate_to_leuro = new_rate;
     self.last_rate_update = Utc::now();
-    Ok(())
+    Ok(CurrencyRateHistoryItem::new(self.code.clone(), new_rate))
   }
 
   /// Эмитировать новую валюту, увеличивая общий объем предложения. Должно быть положительным числом.
@@ -114,11 +125,12 @@ impl Currency
   {
     if amount <= Decimal::ZERO
     {
-      return Err(CurrencyError::InvalidExchangeRate);
+      return Err(CurrencyError::InvalidAmount);
     }
     if amount > self.total_supply
     {
-      return Err(CurrencyError::InvalidExchangeRate);
+      return Err(CurrencyError::InsufficientSupplyForBurn { requested: amount,
+                                                            supply: self.total_supply });
     }
     self.total_supply -= amount;
     Ok(())
