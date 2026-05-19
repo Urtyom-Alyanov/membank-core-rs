@@ -28,12 +28,12 @@ pub enum WalletError
 /// Кошелёк, содержит баланс, и метаданные типа имени и описания
 pub struct Wallet
 {
-  id: Uuid,
-  owner_id: i32,
-  balance: Money,
-  created_at: DateTime<Utc>,
-  name: String,
-  description: Option<String>,
+  pub id: Uuid,
+  pub owner_id: i32,
+  pub balance: Money,
+  pub created_at: DateTime<Utc>,
+  pub name: String,
+  pub description: Option<String>,
 }
 
 impl Wallet
