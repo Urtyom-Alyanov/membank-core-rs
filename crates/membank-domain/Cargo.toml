@@ -11,3 +11,4 @@ rust_decimal = { version = "1.42.0", features = ["serde"] }
 membank-utils = { path = "../membank-utils" }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.149" }
+anyhow = "1.0.102"

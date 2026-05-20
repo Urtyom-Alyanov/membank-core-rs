@@ -9,6 +9,18 @@ use uuid::Uuid;
 
 use crate::value::money::Money;
 
+pub struct WalletId(Uuid);
+
+impl From<Uuid> for WalletId
+{
+  fn from(value: Uuid) -> Self { Self(value) }
+}
+
+impl Into<Uuid> for WalletId
+{
+  fn into(self) -> Uuid { self.0 }
+}
+
 #[derive(Error, Debug)]
 pub enum WalletError
 {
@@ -28,7 +40,7 @@ pub enum WalletError
 /// Кошелёк, содержит баланс, и метаданные типа имени и описания
 pub struct Wallet
 {
-  pub id: Uuid,
+  pub id: WalletId,
   pub owner_id: i32,
   pub balance: Money,
   pub created_at: DateTime<Utc>,
@@ -38,16 +50,25 @@ pub struct Wallet
 
 impl Wallet
 {
-  pub fn new(owner_id: i32, balance: Money, name: String, description: Option<String>) -> Self
+  pub fn new(owner_id: i32,
+             balance: Money,
+             name: String,
+             description: Option<String>)
+             -> Result<Self, WalletError>
   {
+    if name.len() < 3
+    {
+      return Err(WalletError::IncorrectName);
+    }
+
     let uuid_with_utc = uuid_v7_with_utc_gen();
 
-    Self { id: uuid_with_utc.0,
-           owner_id,
-           balance,
-           created_at: uuid_with_utc.1,
-           name,
-           description }
+    Ok(Self { id: WalletId::from(uuid_with_utc.0),
+              owner_id,
+              balance,
+              created_at: uuid_with_utc.1,
+              name,
+              description })
   }
 
   /// Добавить денег в кошелёк
@@ -57,12 +78,8 @@ impl Wallet
     {
       return Err(WalletError::InvalidAmount);
     }
-    if self.balance.currency_id != amount.currency_id
-    {
-      return Err(WalletError::CurrencyMismatch);
-    }
-    self.balance.amount += amount.amount;
-    Ok(self.balance)
+    self.balance += amount;
+    Ok(self.balance.clone())
   }
 
   /// Вычесть деньги из кошелька
@@ -72,18 +89,14 @@ impl Wallet
     {
       return Err(WalletError::InvalidAmount);
     }
-    if self.balance.currency_id != amount.currency_id
-    {
-      return Err(WalletError::CurrencyMismatch);
-    }
     if self.balance.amount < amount.amount
     {
-      return Err(WalletError::InsufficientFunds { balance: self.balance,
+      return Err(WalletError::InsufficientFunds { balance: self.balance.clone(),
                                                   required: amount });
     }
 
     self.balance.amount -= amount.amount;
-    Ok(self.balance)
+    Ok(self.balance.clone())
   }
 
   /// Изменить имя кошелька

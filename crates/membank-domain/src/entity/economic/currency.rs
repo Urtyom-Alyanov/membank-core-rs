@@ -6,7 +6,10 @@ use rust_decimal::Decimal;
 use thiserror::Error;
 use uuid::Uuid;
 
-use crate::entity::economic::currency_rate_history_item::CurrencyRateHistoryItem;
+use crate::{
+  entity::economic::currency_rate_history_item::CurrencyRateHistoryItem,
+  value::currency_code::CurrencyCode,
+};
 
 #[derive(Error, Debug)]
 pub enum CurrencyError
@@ -29,7 +32,7 @@ pub enum CurrencyError
 /// иконку, а также обменный курс к Левро (MLC) - базовой валюте системы.
 pub struct Currency
 {
-  pub code: String,
+  pub code: CurrencyCode,
   pub issuer_id: u32,
   pub name: String,
   pub exchange_rate_to_leuro: Decimal,
@@ -43,24 +46,19 @@ pub struct Currency
 impl Currency
 {
   /// Создать новую валюту. Код должен быть 3 символа, а обменный курс должен быть положительным числом.
-  pub fn new(code: String,
+  pub fn new(code: CurrencyCode,
              name: String,
              exchange_rate_to_leuro: Decimal,
              issuer_id: u32,
              symbol_icon_id: Option<Uuid>)
              -> Result<Self, CurrencyError>
   {
-    if code.len() != 3
-    {
-      return Err(CurrencyError::InvalidCode(code));
-    }
-
     if exchange_rate_to_leuro <= Decimal::ZERO
     {
       return Err(CurrencyError::InvalidExchangeRate);
     }
 
-    Ok(Self { code: code.to_uppercase(),
+    Ok(Self { code,
               name,
               exchange_rate_to_leuro,
               issuer_id,
