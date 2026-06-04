@@ -4,11 +4,11 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-uuid = { version = "1.23.1", features = ["v7"] }
+uuid = { version = "1.23.2", features = ["v7"] }
 thiserror = "2.0.18"
 chrono = { version = "0.4.44", features = ["serde"] }
 rust_decimal = { version = "1.42.0", features = ["serde"] }
 membank-utils = { path = "../membank-utils" }
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = { version = "1.0.149" }
+serde_json = { version = "1.0.150" }
 anyhow = "1.0.102"
